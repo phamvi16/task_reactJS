@@ -2,40 +2,45 @@ import Header from './components/Header';
 import Button from './components/Button';
 import Tasks from './components/Tasks';
 import AddTask from './components/AddTask';
-import { useState } from 'react';
+import axios from 'axios';
+import api from './components/api/api';
+import { useState, useEffect } from 'react';
 const App = (props) => {
 	const [showAddTask, setShowAddTask] = useState(true);
-	const [tasks, setTasks] = useState([
-		{
-			id: 1,
-			text: 'Doctors Appointment',
-			day: 'Feb 5th at 2:30pm',
-			reminder: true,
-		},
-		{
-			id: 2,
-			text: 'Software Technology',
-			day: 'Jan 6th at 2:30pm',
-			reminder: true,
-		},
-		{
-			id: 3,
-			text: 'Information System',
-			day: 'Feb 5th at 2:30pm',
-			reminder: false,
-		},
-	]);
-
+	const [tasks, setTasks] = useState([]);
+	const [text, setText] = useState('');
+	const [day, setDay] = useState('');
+	const [reminder, setReminder] = useState('No');
+	useEffect(() => {
+		const getTasks = async () => {
+			// const tasksFromServer = await fetchTasks();
+			// setTasks(tasksFromServer);
+			const resp = await api.get('/tasks');
+			setTasks(resp.data);
+		};
+		getTasks();
+	}, []);
+	// Fetch Tasks
+	// const fetchTasks = async () => {
+	// 	const res = await fetch('http://localhost:5000/tasks');
+	// 	const data = await res.json();
+	// 	console.log('data', data);
+	// 	return data;
+	// };
 	//Delete Task
 	const deleteTask = (id) => {
 		setTasks(tasks.filter((task) => task.id !== id));
 	};
 
 	//Add Task
-	const addTask = (task) => {
-		const id = Math.floor(Math.random() * 1000) + 1;
-		const newTask = { id, ...task };
-		setTasks([...tasks, newTask]);
+	const addTask = async () => {
+		const newTask = { text: text, day: day, reminder: reminder };
+		// const id = Math.floor(Math.random() * 1000) + 1;
+		// const newTask = { id, ...task };
+		// setTasks([...tasks, newTask]);
+		const resp = await api.post('/tasks', newTask);
+		// setTasks([...tasks, resp.data]);
+		console.log('resp', resp.data);
 	};
 
 	//Toggle Reminder
